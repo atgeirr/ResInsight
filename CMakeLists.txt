@@ -7,25 +7,26 @@ set (VIZ_MODULES_FOLDER_NAME VisualizationModules)
 
 # Setup the main platform defines
 #-----------------------------------------------------
-if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+add_definitions(-DUSE_ECL_LIB)
+
+if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     add_definitions(-DCVF_LINUX)
-elseif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    # Linux specific code
+    set(CMAKE_CXX_FLAGS 		"${CMAKE_CXX_FLAGS} -pipe -Wextra -Woverloaded-virtual -Wformat")
+    set(CMAKE_CXX_FLAGS         "${CMAKE_CXX_FLAGS} -fopenmp")
+    set(CMAKE_CXX_FLAGS_DEBUG 	"-ggdb -g3 -O0 -DDEBUG -D_DEBUG")
+    set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DNO_DEBUG")
+#    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -g1")
+#    set(CMAKE_EXE_LINKER_FLAGS  "-Xlinker -rpath .")
+elseif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP /openmp")
+elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     add_definitions(-DCVF_OSX)
 else()
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
-endif()
-
-IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-        # Linux specific code
-        set(CMAKE_CXX_FLAGS 		"-DCVF_LINUX -DUSE_ECL_LIB -pipe -Wextra -Woverloaded-virtual -Wformat")
-        set(CMAKE_CXX_FLAGS_DEBUG 	"-ggdb -g3 -O0 -DDEBUG -D_DEBUG")
-        set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DNO_DEBUG")
-        #set(CMAKE_EXE_LINKER_FLAGS  "-Xlinker -rpath .")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
-#        set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -g1")
-ELSE()
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /openmp -DUSE_ECL_LIB")
-ENDIF() 
+    # attempt to compile anyway, maybe it'll work
+    message(WARNING "
+Unsupported platform '${CMAKE_SYSTEM_NAME}'. If you know the appropriate build flags for this system, please submit a patch.")
+endif() 
 
 
 ################################################################################
