@@ -22,6 +22,7 @@
 #include "util.h"
 #include "ecl_file.h"
 #include "ecl_intehead.h"
+#include "ecl_kw_magic.h"
 #endif //USE_ECL_LIB
 
 #include <QFileInfo>
