@@ -52,7 +52,7 @@
 #include "cvfStructGridGeometryGenerator.h"
 
 #include <algorithm>
-#include <omp.h>
+//#include <omp.h>
 
 CAF_PDM_SOURCE_INIT( RimEclipseContourMapProjection, "RimEclipseContourMapProjection" );
 
