@@ -49,7 +49,7 @@
 
 #include <algorithm>
 #include <array>
-#include <omp.h>
+//#include <omp.h>
 #include <QDebug>
 
 CAF_PDM_SOURCE_INIT(RimGeoMechContourMapProjection, "RimGeoMechContourMapProjection");
