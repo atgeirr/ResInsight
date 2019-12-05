@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 2.8.12)
+cmake_minimum_required (VERSION 3.11)
 
 project (ApplicationCode)
 
@@ -537,6 +537,28 @@ if (RESINSIGHT_PRIVATE_INSTALL)
       
     endif()
 
+    if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+      # tell binary to first attempt to load libraries from its own directory
+      set(RESINSIGHT_INSTALL_RPATH "\$ORIGIN")
+
+      if (${RESINSIGHT_USE_ODB_API})
+        # This is a "hack" to make ResInsight runtime find the ODB so files used when compiling.
+        # statoil wanted it this way, but we should probbly make a different installoptions that does things this way,
+        # and really do copy them when doing PRIVATE_INSTALL
+        set(RESINSIGHT_INSTALL_RPATH ${RESINSIGHT_INSTALL_RPATH} ${RESINSIGHT_ODB_API_DIR}/lib)
+      endif()
+      
+      if (EXISTS ${RESINSIGHT_ERT_EXTERNAL_LIB_ROOT}) 
+        # append the external ERT lib root
+        set(RESINSIGHT_INSTALL_RPATH ${RESINSIGHT_INSTALL_RPATH} ${RESINSIGHT_ERT_EXTERNAL_LIB_ROOT})
+      endif()
+      
+      message("RESINSIGHT_INSTALL_RPATH : " "${RESINSIGHT_INSTALL_RPATH}")
+
+      set_target_properties (ResInsight PROPERTIES INSTALL_RPATH "${RESINSIGHT_INSTALL_RPATH}")
+      
+    endif()
+
     if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
         # put a .exe.local file in the target directory to pick up DLLs from there
         install (CODE "exec_program (\"${CMAKE_COMMAND}\" ARGS -E touch \$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}ResInsight${CMAKE_EXECUTABLE_SUFFIX}.local)")
@@ -611,6 +633,16 @@ if (RESINSIGHT_PRIVATE_INSTALL)
     if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
       install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/resinsight DESTINATION ${RESINSIGHT_INSTALL_FOLDER} PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE )
     endif()
+
+# Note Mac specific extension .app
+set(XXAPPS "\${CMAKE_INSTALL_PREFIX}/ResInsight.app")
+
+# Directories to look for dependencies
+set(XXDIRS "${CMAKE_BINARY_DIR};${CMAKE_BINARY_DIR}/ThirdParty/Ert/lib/")
+
+install(CODE "include(BundleUtilities)
+    fixup_bundle(\"${XXAPPS}\" \"\" \"${XXDIRS}\")")
+
 
 else (RESINSIGHT_PRIVATE_INSTALL)
   # binaries go in /usr/bin
